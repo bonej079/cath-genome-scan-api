@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h1>Using the API</h1>
+
+    <ul>
+    <li>For version 4.0, use http://{{hostname}}:{{port}}/api_4_0/api</li>
+    </ul>
+
+    <h2>Available API calls</h2>
+    <ul>
+    <li><b>version</b>: returns the version of CATH being used</li>
+    <li><b>funfams</b>: requests the funfams for a sequence
+        <br>Parameters:
+        <ol>
+            <b>sequence</b>: <i>Required</i>: The sequence (in FASTA format) for which funfams are requested. Example:
+            <quote>>T1864970000001 1A1D_PYRFU
+MHPKVQSLLSKFPRVELIPWETPIQYLPNISKLVGADIYVKRDDLTGLGIGGNKIRKLEY
+LLGDAIIRKADVIITVGAVHSNHAFVTGLAAKKLGFDVVLVLRGKEELRGNYLLDKIMGI
+ETRVYEAKDSFELMKYAEEVAKELEEKGRKPYIIPVGGASPVGTLGYVRASGEIAEQGNR
+IGVNFDSIVVATGSGGTLAGLSVGLAILRKETRAIGMAVGKFGETMVNKVEELAKATGEF
+IGVKNLKLKIELYDYSFGEYGKITREVAETIRLVGTKEGVILDPVYTGKAFYGLLDLAKK
+GELGEKILFIHTGGISGTFHYGDKILSFL</quote>
+        </ol>
+    </li>
+    </ul>
+
+{% endblock %}
