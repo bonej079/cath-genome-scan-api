@@ -12,30 +12,38 @@ class Funfhmmer:
 
     def meets_inclusion_threshold(self, cath_fun_fam: str, bitscore: float, escore: float, verbose: bool = False,
                                   output: list = []):
-        checksql = """
-            SELECT CASE WHEN (%s >= cff.cathfunfamily_bitscore_threshold AND %s <= cff.cathfunfamily_evalue)
-                           THEN 1 ELSE 0 END AS "include", cff.cathfunfamily_bitscore_threshold AS "bitscore",
-                                 sci(cff.cathfunfamily_evalue) AS "evalue"
-            FROM phd.GoGraph_cathfunfamilies cff
-            WHERE cff.cathfunfamilyfull_id = %s
-        """
+        try:
+            checksql = """
+                SELECT CASE WHEN (%s >= cff.cathfunfamily_bitscore_threshold AND %s <= cff.cathfunfamily_evalue)
+                               THEN 1 ELSE 0 END AS "include", cff.cathfunfamily_bitscore_threshold AS "bitscore",
+                                     sci(cff.cathfunfamily_evalue) AS "evalue"
+                FROM phd.GoGraph_cathfunfamilies cff
+                WHERE cff.cathfunfamilyfull_id = %s
+            """
 
-        connection = MySQLConnectionPool.get_instance().get_connection()
-        include_protein = False
+            connection = MySQLConnectionPool.get_instance().get_connection()
+            include_protein = False
 
-        with connection.cursor() as cursor:
-            cursor.execute(checksql, (bitscore, escore, cath_fun_fam,))
+            with connection.cursor() as cursor:
+                cursor.execute(checksql, (bitscore, escore, cath_fun_fam,))
 
-            row = cursor.fetchone()
+                row = cursor.fetchone()
 
-            if verbose:
-                output.append(f"For <{cath_fun_fam}>, <evalue: {row['evalue']}>, <bitscore: {row['bitscore']}>")
+                if verbose:
+                    output.append(f"For <{cath_fun_fam}>, <evalue: {row['evalue']}>, <bitscore: {row['bitscore']}>")
 
-            include_protein = True if row['include'] == 1 else False
+                include_protein = True if row['include'] == 1 else False
 
-        MySQLConnectionPool.get_instance().close_connection(connection)
+            MySQLConnectionPool.get_instance().close_connection(connection)
 
-        return include_protein
+            return include_protein
+
+        except:
+            import sys
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+
+        return False
 
     def fhmmer_search_online(self, sequence: str, verbose: bool, timeout: int, output: list = []):
         try:

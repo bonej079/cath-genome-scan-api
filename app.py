@@ -4,7 +4,19 @@ from flask import Flask, render_template
 from flask_restful import Resource, Api, reqparse
 from dotenv import load_dotenv
 from Bio import SeqIO
+from utilities.mysqlconnectionpool import MySQLConnectionPool
 import socket
+
+
+def check_database():
+    connection = MySQLConnectionPool.get_instance().get_connection()
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT @@version as db_version;")
+
+        row = cursor.fetchone()
+
+        print(row['db_version'])
 
 app = Flask(__name__)
 app.debug = True
@@ -12,6 +24,8 @@ app.debug = True
 # Environment
 env_path = 'environment.env'
 load_dotenv(verbose=True, dotenv_path=env_path)
+
+check_database()
 
 # API
 api = Api(app)
@@ -41,6 +55,7 @@ class APIv4_0(Resource):
             return {'version': 'cathv4_0'}
         elif command == 'funfams':
             sequence = args['sequence'].upper()
+
             if sequence is None:
                 return {'error': 'Sequence not provided'}
             else:
@@ -51,12 +66,13 @@ class APIv4_0(Resource):
 
                 from classes.funfhmmer import Funfhmmer
                 fhmmer = Funfhmmer()
-                results = fhmmer.fhmmer_search(protein_description,str(searchable_sequence),[])
+                results = fhmmer.fhmmer_search_offline(protein_description,str(searchable_sequence),[])
 
-                if results is not None or len(results) > 0:
-                    return {'funfams': ','.join(results)}
-                else:
-                    return {'funfams' : None}
+                if results is not None:
+                    if len(results) > 0:
+                        return {'funfams': ','.join(results)}
+
+                return {'funfams' : None}
         elif command is None:
             return {'error': 'No command was provided.'}
         return {'unknown': 'An unknown error has occurred.'}

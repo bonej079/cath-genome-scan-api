@@ -1,6 +1,6 @@
 #! /bin/bash
 
-. /home/jbon4/apps/anaconda3/etc/profile.d/conda.sh
+. /home/jbon4/anaconda3/etc/profile.d/conda.sh
 conda activate phd37flask
 
 # if permission denied error do
@@ -11,4 +11,8 @@ conda activate phd37flask
 export FLASK_APP=app.py
 export FLASK_ENV=development
 export FLASK_DEBUG=1
-flask run --host=0.0.0.0 --port=8080
+nohup flask run --host=0.0.0.0 --port=8080 &
+
+sleep 5
+
+tail -f ./nohup.out
